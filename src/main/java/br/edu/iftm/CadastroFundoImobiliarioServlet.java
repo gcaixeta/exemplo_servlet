@@ -2,12 +2,14 @@ package br.edu.iftm;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 import jakarta.servlet.ServletException;
@@ -56,10 +58,16 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
                     "<table border='1'><tr><th>ID</th><th>Nome</th><th>Setor</th><th>Preço</th><th>Data IPO</th><th>Ações</th></tr>");
 
             while (rs.next()) {
-               //TODO: busca os campos da table do banco para monta a tabela no html na lista dos fii
+                double id = rs.getDouble("id");
+                String nome = rs.getString("nome");
+                String setor = rs.getString("setor");
+                BigDecimal preco = rs.getBigDecimal("preco");
+                Date data = rs.getDate("data");
+                String dataFormatada = String.valueOf(LocalDate.from(data.toInstant()));
 
-                /*out.println("<tr><td>" + id + "</td><td>" + nome + "</td><td>" + setor + "</td><td>" + preco
-                        + "</td><td>" + dataFormatada + "</td>");*/
+
+                out.println("<tr><td>" + id + "</td><td>" + nome + "</td><td>" + setor + "</td><td>" + preco
+                        + "</td><td>" + dataFormatada + "</td>");
                 out.println("<td><form method='post' action='fii'>");
                 out.println("<input type='hidden' name='acao' value='excluir'>");
                 //out.println("<input type='hidden' name='id' value='" + id + "'>");
