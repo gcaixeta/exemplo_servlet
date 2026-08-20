@@ -109,7 +109,7 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
             String nome = request.getParameter("nome");
             String setor = request.getParameter("setor");
             String precoStr = request.getParameter("preco");
-            String dataIpoStr = request.getParameter("dataIpo");
+            String dataIpoStr = request.getParameter("data_ipo");
 
             if (nome == null || nome.trim().isEmpty() || setor == null || setor.trim().isEmpty() ||
                     precoStr == null || precoStr.trim().isEmpty() || dataIpoStr == null

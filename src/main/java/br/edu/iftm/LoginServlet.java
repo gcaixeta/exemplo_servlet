@@ -24,7 +24,9 @@ public class LoginServlet extends HttpServlet {
 
         if (userDAO.validar(usuarioParam, senhaParam)) {
             // Se as credenciais são válidas, cria uma sessão
+            
             // cria uma sessão, atribui um valor 
+            request.getSession().setAttribute("usuarioLogado", true);
             response.sendRedirect("fii");
         } else {
              response.sendRedirect("login.html");
