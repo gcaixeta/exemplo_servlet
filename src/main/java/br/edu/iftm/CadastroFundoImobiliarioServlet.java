@@ -49,7 +49,7 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DatabaseConnection.getConnection();
             PreparedStatement pstmt = conn
-                    .prepareStatement("SELECT id, nome, setor, preco, data_ipo FROM fundos_imobiliarios");
+                    .prepareStatement("SELECT id, nome, setor, preco, data_ipo FROM fundos_imobiliarios;");
             ResultSet rs = pstmt.executeQuery();
 
             out.println("<html><head><title>Lista de Fundos Imobiliários</title></head><body>");
@@ -58,19 +58,18 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
                     "<table border='1'><tr><th>ID</th><th>Nome</th><th>Setor</th><th>Preço</th><th>Data IPO</th><th>Ações</th></tr>");
 
             while (rs.next()) {
-                double id = rs.getDouble("id");
+                int id = rs.getInt("id");
                 String nome = rs.getString("nome");
                 String setor = rs.getString("setor");
-                BigDecimal preco = rs.getBigDecimal("preco");
-                Date data = rs.getDate("data");
-                String dataFormatada = String.valueOf(LocalDate.from(data.toInstant()));
-
+                Double preco = rs.getDouble("preco");
+                Date data = rs.getDate("data_ipo");
+                String dataFormatada = data.toString();
 
                 out.println("<tr><td>" + id + "</td><td>" + nome + "</td><td>" + setor + "</td><td>" + preco
                         + "</td><td>" + dataFormatada + "</td>");
                 out.println("<td><form method='post' action='fii'>");
                 out.println("<input type='hidden' name='acao' value='excluir'>");
-                //out.println("<input type='hidden' name='id' value='" + id + "'>");
+                out.println("<input type='hidden' name='id' value='" + id + "'>");
                 out.println("<input type='submit' value='Excluir'>");
                 out.println("</form></td></tr>");
             }
@@ -99,20 +98,25 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
         if ("excluir".equals(acao)) {
             String idStr = request.getParameter("id");
             if (idStr != null && !idStr.trim().isEmpty()) {
-                /*try {
-                     //TODO: Pega o id vindo na requisição e exclui no banco de dados. 
-                   
+                try {
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    Connection conn = DatabaseConnection.getConnection();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM fundos_imobiliarios WHERE id = ?;");
+                    ps.setDouble(1, Double.valueOf(idStr));
+                    ps.execute();
                 } catch (SQLException | ClassNotFoundException | NumberFormatException e) {
                     out.println("<div class='error-message'>Erro ao excluir fundo: " + e.getMessage() + "</div>");
                     e.printStackTrace();
-                }*/
+                }
             }
 
         } else if("cadastrar".equals(acao)) {
 
             String nome = request.getParameter("nome");
-            //TODO: buscar os demais campos vindos do formulário de cadastro. 
-            /*
+            String setor = request.getParameter("setor");
+            String precoStr = request.getParameter("preco");
+            String dataIpoStr = request.getParameter("dataIpo");
+
             if (nome == null || nome.trim().isEmpty() || setor == null || setor.trim().isEmpty() ||
                     precoStr == null || precoStr.trim().isEmpty() || dataIpoStr == null
                     || dataIpoStr.trim().isEmpty()) {
@@ -138,12 +142,20 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
             }
 
             try {
-                //TODO: Conecta com o banco, monta a query de insert e executa. 
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO fundos_imobiliarios(nome, preco, setor, data_ipo) VALUES  (?, ?, ?, ?);");
+                ps.setString(1, nome);
+                ps.setDouble(2, preco);
+                ps.setString(3, setor);
+                ps.setDate(4, java.sql.Date.valueOf(dataIpoStr));
+
+                ps.executeUpdate();
                 response.sendRedirect("fii");
             } catch (SQLException | ClassNotFoundException e) {
                 out.println("<div class='error-message'>Erro ao cadastrar fundo: " + e.getMessage() + "</div>");
                 e.printStackTrace();
-            }*/
+            }
         }
     }
 }
