@@ -2,14 +2,12 @@ package br.edu.iftm;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 
 import jakarta.servlet.ServletException;
@@ -45,9 +43,7 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
         PrintWriter out = response.getWriter();
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getConnection()){
             PreparedStatement pstmt = conn
                     .prepareStatement("SELECT id, nome, setor, preco, data_ipo FROM fundos_imobiliarios;");
             ResultSet rs = pstmt.executeQuery();
@@ -77,7 +73,7 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
             out.println("</table>");
             out.println("<a href='formulario.html'>Cadastrar</a>");
             out.println("</body></html>");
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             out.println(
                     "<div class='error-message'>Erro ao listar os fundos imobiliários: " + e.getMessage() + "</div>");
             e.printStackTrace();
@@ -98,13 +94,11 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
         if ("excluir".equals(acao)) {
             String idStr = request.getParameter("id");
             if (idStr != null && !idStr.trim().isEmpty()) {
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    Connection conn = DatabaseConnection.getConnection();
+                try (Connection conn = DatabaseConnection.getConnection()){
                     PreparedStatement ps = conn.prepareStatement("DELETE FROM fundos_imobiliarios WHERE id = ?;");
-                    ps.setDouble(1, Double.valueOf(idStr));
+                    ps.setInt(1, Integer.parseInt(idStr));
                     ps.execute();
-                } catch (SQLException | ClassNotFoundException | NumberFormatException e) {
+                } catch (SQLException | NumberFormatException e) {
                     out.println("<div class='error-message'>Erro ao excluir fundo: " + e.getMessage() + "</div>");
                     e.printStackTrace();
                 }
@@ -141,9 +135,7 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
                 return;
             }
 
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection conn = DatabaseConnection.getConnection();
+            try (Connection conn = DatabaseConnection.getConnection()){
                 PreparedStatement ps = conn.prepareStatement("INSERT INTO fundos_imobiliarios(nome, preco, setor, data_ipo) VALUES  (?, ?, ?, ?);");
                 ps.setString(1, nome);
                 ps.setDouble(2, preco);
@@ -152,7 +144,7 @@ public class CadastroFundoImobiliarioServlet extends HttpServlet {
 
                 ps.executeUpdate();
                 response.sendRedirect("fii");
-            } catch (SQLException | ClassNotFoundException e) {
+            } catch (SQLException e) {
                 out.println("<div class='error-message'>Erro ao cadastrar fundo: " + e.getMessage() + "</div>");
                 e.printStackTrace();
             }
